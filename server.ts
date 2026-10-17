@@ -1041,8 +1041,12 @@ const wss = new WebSocketServer({ noServer: true });
 server.on('upgrade', (request, socket, head) => {
   const url = request.url || '';
   if (url.startsWith('/_next')) {
+    // Next.js HMR WebSocket upgrades should not be handled by our Workstream WSS.
+    // Return early to skip Workstream WSS handler.
     return;
   }
+  
+  // Existing WorkStream WebSocket handling
   const ip = request.socket.remoteAddress || 'unknown';
   if (!checkWsIpRateLimit(ip)) {
     console.warn(`[Security] WebSocket connection attempt from ${ip} rejected: rate limit exceeded.`);
@@ -2366,12 +2370,22 @@ function isProjectPublic(p: Project): boolean {
 
 // Public Marketplace Endpoints: returns only published, active, approved listings without internal moderation/private metadata
 app.get('/api/gigs', (req, res) => {
-  const publicGigs = gigs.filter(isGigPublic).map(sanitizePublicGig);
+  const { limit, offset } = req.query;
+  let publicGigs = gigs.filter(isGigPublic).map(sanitizePublicGig);
+  
+  if (offset) publicGigs = publicGigs.slice(Number(offset));
+  if (limit) publicGigs = publicGigs.slice(0, Number(limit));
+  
   res.json(publicGigs);
 });
 
 app.get('/api/projects', (req, res) => {
-  const publicProjects = projects.filter(isProjectPublic).map(sanitizePublicProject);
+  const { limit, offset } = req.query;
+  let publicProjects = projects.filter(isProjectPublic).map(sanitizePublicProject);
+  
+  if (offset) publicProjects = publicProjects.slice(Number(offset));
+  if (limit) publicProjects = publicProjects.slice(0, Number(limit));
+  
   res.json(publicProjects);
 });
 
