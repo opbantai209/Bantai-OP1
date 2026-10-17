@@ -66,6 +66,7 @@ export default function ClientWrapper({ initialData }: { initialData?: Record<st
     setHasMounted(true);
   }, []);
 
+  // Only show loading screen if NO initial data is provided (SPA client-only mode)
   if (!hasMounted && !initialData) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center font-sans">

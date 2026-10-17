@@ -293,266 +293,70 @@ export function Header({
           )}
         </button>
         
-        <div className="relative">
-          <button 
-            type="button"
-            onClick={async (e) => {
-              e.stopPropagation();
-              if (!currentUser) {
-                const restored = await loadUserSession();
-                if (!restored) {
-                  navigate('/login', e);
-                  return;
-                }
-              }
-              setIsWorkstreamsDropdownOpen(!isWorkstreamsDropdownOpen);
-              setIsUserDropdownOpen(false);
-            }} 
-            className="p-2 text-fiverr-dark hover:text-fiverr-dark rounded-full hover:bg-slate-100 transition-colors relative cursor-pointer"
-            title="Workstreams & Messages"
-          >
-            <Mail className="w-5 h-5 text-fiverr-dark" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full"></span>
-          </button>
-
-          {isWorkstreamsDropdownOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 py-3 z-[100] text-xs font-sans" onClick={(e) => e.stopPropagation()}>
-              <div className="px-4 pb-2.5 mb-2 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Workstreams</span>
-                <span className="text-[10px] font-mono text-emerald-600 font-bold">{orders.length} Active</span>
-              </div>
-
-              <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
-                {orders.slice(0, 5).map(ord => (
-                  <div 
-                    key={ord.id}
-                    onClick={async () => {
-                      if (!currentUser) {
-                        const restored = await loadUserSession();
-                        if (!restored) {
-                          navigate('/login');
-                          return;
-                        }
-                      }
-                      setSelectedOrder(ord);
-                      fetchMessages(ord.id);
-                      setIsWorkstreamsDropdownOpen(false);
-                      navigate('/messages/' + ord.id);
-                    }}
-                    className="p-3 hover:bg-slate-50 transition-colors cursor-pointer flex items-start gap-3"
-                  >
-                    <img src="https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=100&h=100&fit=crop" className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200 shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2 mb-0.5">
-                        <span className="font-bold text-fiverr-dark truncate">{ord.title}</span>
-                        <span className="text-[10px] text-slate-400 whitespace-nowrap font-mono">{ord.createdAt || '31 Jul 2026'}</span>
-                      </div>
-                      <p className="text-[11px] text-fiverr-muted truncate">
-                        {ord.requirements || 'Hi Nikhil, Hope you are doing well. Please check the deliverables.'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pt-2 px-3 border-t border-slate-100 mt-2 text-center">
-                <button 
-                  onClick={() => {
-                    setIsWorkstreamsDropdownOpen(false);
-                    navigate('/messages');
-                  }}
-                  className="w-full py-2 bg-slate-50 hover:bg-slate-100 text-fiverr-dark font-bold text-[10px] uppercase tracking-wider rounded-xl transition-colors cursor-pointer"
-                >
-                  View All
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <button 
-          onClick={(e) => navigate('/notifications', e)} 
-          className="p-2 text-fiverr-dark hover:text-fiverr-dark rounded-full hover:bg-slate-100 transition-colors relative cursor-pointer"
-          title="Notifications"
-        >
-          <Bell className="w-5 h-5 text-fiverr-dark" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-
+        <div className="relative pl-2 border-l border-slate-200">
         {!currentUser ? (
           <>
             <button onClick={(e) => navigate('/login', e)} className="px-4 py-2 text-[13.5px] font-semibold text-fiverr-dark hover:text-fiverr-dark cursor-pointer">Login</button>
             <button onClick={(e) => navigate('/signup', e)} className="px-4 py-2 text-[13.5px] font-semibold text-white bg-emerald-500 rounded-lg hover:bg-emerald-600 cursor-pointer">Sign Up</button>
           </>
         ) : (
-          <div className="relative pl-2 border-l border-slate-200">
+          <button 
+            type="button"
+            onClick={(e) => {
+                e.stopPropagation();
+                setIsUserDropdownOpen(!isUserDropdownOpen);
+            }}
+            className="relative flex items-center gap-1.5 cursor-pointer p-1 rounded-xl hover:bg-slate-100 transition-colors border-none bg-transparent"
+          >
+            <div className="relative">
+              <img src={currentUser.avatar} alt={currentUser.name} className="w-8 h-8 rounded-full object-cover border border-slate-200" />
+              {currentUser.isAvailableNow && (
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full animate-pulse" title="Available Now"></span>
+              )}
+            </div>
+            <ChevronDown className={`w-3.5 h-3.5 text-emerald-950 transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+        )}
+        {currentUser && isUserDropdownOpen && (
+          <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-[100] text-[13px]" onClick={(e) => e.stopPropagation()}>
+            <div className="px-3 py-2 border-b border-slate-100 mb-1 flex items-center justify-between">
+              <div>
+                <span className="font-bold text-fiverr-dark block">{currentUser.name}</span>
+                <span className="text-[10px] text-slate-400 uppercase">{currentUser.role}</span>
+              </div>
+            </div>
             <button 
-              type="button"
-              onClick={(e) => {
-                  e.stopPropagation();
-                  setIsUserDropdownOpen(!isUserDropdownOpen);
-              }}
-              className="relative flex items-center gap-1.5 cursor-pointer p-1 rounded-xl hover:bg-slate-100 transition-colors border-none bg-transparent"
+              onClick={(e) => { setIsUserDropdownOpen(false); navigate('/create-gig', e); }} 
+              className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
             >
-              <div className="relative">
-                <img src={currentUser.avatar} alt={currentUser.name} className="w-8 h-8 rounded-full object-cover border border-slate-200" />
-                {currentUser.isAvailableNow && (
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full animate-pulse" title="Available Now"></span>
-                )}
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-emerald-950 transition-transform ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
+              <PlusCircle className="w-4 h-4 text-emerald-600" />
+              <span>Post Gig</span>
             </button>
-            {isUserDropdownOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-[100] text-[13px]" onClick={(e) => e.stopPropagation()}>
-                <div className="px-3 py-2 border-b border-slate-100 mb-1 flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-fiverr-dark block">{currentUser.name}</span>
-                    <span className="text-[10px] text-slate-400 uppercase">{currentUser.role}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold uppercase ${currentUser.isAvailableNow ? 'text-emerald-700' : 'text-fiverr-muted'}`}>
-                      {currentUser.isAvailableNow ? 'Available' : 'Unavailable'}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleAvailableNow(); }}
-                      className={`relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        currentUser.isAvailableNow ? 'bg-emerald-500' : 'bg-slate-300'
-                      }`}
-                      role="switch"
-                      aria-checked={currentUser.isAvailableNow}
-                      title="Toggle availability status"
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                          currentUser.isAvailableNow ? 'translate-x-5' : 'translate-x-0'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-
-                <button 
-                  onClick={(e) => { setIsUserDropdownOpen(false); navigate('/create-gig', e); }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <PlusCircle className="w-4 h-4 text-emerald-600" />
-                  <span>Post Gig</span>
-                </button>
-
-
-
-                <button 
-                  onClick={(e) => { setIsUserDropdownOpen(false); navigate('/orders', e); }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <LayoutDashboard className="w-4 h-4 text-emerald-600" />
-                  <span>Dashboard</span>
-                </button>
-
-                <div className="w-full px-3 py-1.5 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center justify-between transition group">
-                  <button 
-                    onClick={(e) => { 
-                      setIsUserDropdownOpen(false); 
-                      const pUrl = `/${slugify(currentUser.name)}`;
-                      navigate(pUrl, e); 
-                    }} 
-                    className="flex items-center gap-2.5 flex-1 text-left cursor-pointer py-0.5"
-                  >
-                    <User className="w-4 h-4 text-emerald-600" />
-                    <span>Profile</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsUserDropdownOpen(false);
-                      navigate('/edit-profile', e);
-                    }}
-                    className="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 hover:border-emerald-400 text-[11px] font-bold rounded-md flex items-center gap-1 cursor-pointer transition shadow-2xs"
-                    title="Edit Profile"
-                  >
-                    <Pencil className="w-3 h-3 text-emerald-600" />
-                    <span>Edit</span>
-                  </button>
-                </div>
-
-                <button 
-                  onClick={(e) => { setIsUserDropdownOpen(false); navigate('/projects', e); }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <Briefcase className="w-4 h-4 text-indigo-600" />
-                  <span>Buyer Activity</span>
-                </button>
-
-                <button 
-                  onClick={(e) => { setIsUserDropdownOpen(false); navigate('/freelance-activity', e); }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <Briefcase className="w-4 h-4 text-emerald-600" />
-                  <span>Freelancer Activity</span>
-                </button>
-
-
-                <button 
-                  onClick={(e) => { setIsUserDropdownOpen(false); navigate('/payments', e); }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <Wallet className="w-4 h-4 text-emerald-600" />
-                  <span>Payments</span>
-                </button>
-
-                <button 
-                  onClick={(e) => { 
-                    setIsUserDropdownOpen(false); 
-                    navigate('/settings', e);
-                  }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <Settings className="w-4 h-4 text-emerald-600" />
-                  <span>Settings</span>
-                </button>
-
-                <button 
-                  onClick={(e) => { setIsUserDropdownOpen(false); navigate('/support', e); }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <HelpCircle className="w-4 h-4 text-amber-600" />
-                  <span>Customer Support</span>
-                </button>
-
-                <button 
-                  onClick={() => { 
-                    setIsUserDropdownOpen(false); 
-                    alert('How WorkPerHour Works:\n\n1. Browse Gigs or Post a Project Request.\n2. Hire top experts and fund milestone payments safely into the 14-day Escrow Vault.\n3. Collaborate in real-time via project Workstreams.\n4. Approve completed work to release escrow funds.'); 
-                  }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <FileText className="w-4 h-4 text-purple-600" />
-                  <span>How it works</span>
-                </button>
-
-                <div className="my-1 border-t border-slate-100"></div>
-
-                <button 
-                  onClick={() => {
-                    setIsUserDropdownOpen(false);
-                    setImpersonatedUser(null);
-                    updateCurrentUser(null);
-                    clearAuthToken();
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('current_user');
-                    navigate('/gigs');
-                  }} 
-                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2.5 transition cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 text-red-500" />
-                  <span>Log Out</span>
-                </button>
-              </div>
-            )}
+            <button 
+              onClick={(e) => { setIsUserDropdownOpen(false); navigate('/orders', e); }} 
+              className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-50 text-fiverr-dark font-semibold flex items-center gap-2.5 transition cursor-pointer"
+            >
+              <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+              <span>Dashboard</span>
+            </button>
+            <button 
+              onClick={() => {
+                setIsUserDropdownOpen(false);
+                setImpersonatedUser(null);
+                updateCurrentUser(null);
+                clearAuthToken();
+                localStorage.removeItem('user');
+                localStorage.removeItem('current_user');
+                navigate('/gigs');
+              }} 
+              className="w-full text-left px-3 py-2 rounded-xl hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2.5 transition cursor-pointer"
+            >
+              <LogOut className="w-4 h-4 text-red-500" />
+              <span>Log Out</span>
+            </button>
           </div>
         )}
+        </div>
       </div>
     </header>
   );

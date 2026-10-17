@@ -102,14 +102,17 @@ export default function App({ initialData }: { initialData?: Record<string, any>
   // Impersonation State
   const [impersonatedUser, setImpersonatedUser] = useState<UserAccount | null>(null);
 
-  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => {
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  
+  useEffect(() => {
     try {
       const cached = localStorage.getItem('current_user') || localStorage.getItem('user');
       const token = getAuthToken();
-      if (cached && token) return JSON.parse(cached);
+      if (cached && token) {
+        setCurrentUser(JSON.parse(cached));
+      }
     } catch (e) {}
-    return null;
-  });
+  }, []);
 
   const updateCurrentUser = (u: UserAccount | null | ((prev: UserAccount | null) => UserAccount | null)) => {
     setCurrentUser(prev => {
